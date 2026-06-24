@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ファンネームメーカー v2</title>
+<style>
+:root{
+  --bg1:#fff8fb;--bg2:#f0edff;--main:#7654ff;--pink:#ff77b7;
+  --text:#302744;--muted:#776b88;--line:#eadff8;--card:#ffffffd9;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+  color:var(--text);min-height:100vh;
+  background:
+    radial-gradient(circle at 15% 10%,#ffe0f0 0 18%,transparent 30%),
+    radial-gradient(circle at 90% 18%,#e8deff 0 20%,transparent 34%),
+    linear-gradient(135deg,var(--bg1),var(--bg2));
+}
+.wrap{max-width:980px;margin:0 auto;padding:24px 16px 60px}
+.hero{text-align:center;padding:28px 10px 18px}
+.badge{display:inline-block;background:#fff;border:1px solid var(--line);color:var(--main);padding:7px 14px;border-radius:999px;font-weight:900;box-shadow:0 8px 24px #7654ff18}
+h1{margin:14px 0 8px;font-size:clamp(32px,7vw,56px);line-height:1.05;color:#5230d6;text-shadow:0 3px 0 #fff}
+.lead{margin:0 auto;max-width:760px;color:var(--muted);line-height:1.8;font-weight:700}
+.card{background:var(--card);border:1px solid #fff;border-radius:28px;padding:18px;margin:18px 0;box-shadow:0 18px 50px #7654ff1a;backdrop-filter:blur(10px)}
+.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+label{display:block;font-weight:900;color:#49346f;margin-bottom:8px}
+input,select{width:100%;padding:14px;border-radius:16px;border:2px solid var(--line);background:#fff;color:var(--text);font-size:16px;font-weight:800;outline:none}
+input:focus,select:focus{border-color:#bca5ff}
+.actions{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px;margin-top:16px}
+@media(max-width:720px){.actions{grid-template-columns:1fr}}
+button{border:0;border-radius:18px;padding:15px 14px;font-size:16px;font-weight:950;cursor:pointer}
+button:active{transform:scale(.98)}
+.primary{background:linear-gradient(135deg,var(--main),var(--pink));color:#fff;box-shadow:0 12px 26px #7654ff36}
+.sub{background:#fff;color:#5839c9;border:2px solid var(--line)}
+.resultTop{text-align:center;padding:18px 10px}
+.mainName{font-size:clamp(28px,6vw,46px);font-weight:950;color:#2f2360;margin:8px 0}
+.tag{display:inline-block;background:#fff;border:1px solid var(--line);color:#654ccf;padding:7px 11px;border-radius:999px;font-weight:900;font-size:13px}
+.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:720px){.results{grid-template-columns:1fr}}
+.item{background:#fff;border:1px solid var(--line);border-radius:20px;padding:15px;position:relative}
+.fan{font-size:25px;font-weight:950;color:#352463;margin-bottom:6px}
+.type{font-size:13px;font-weight:900;color:#7654ff;margin-bottom:8px}
+.desc{color:#6f647e;line-height:1.7;font-weight:650;font-size:14px}
+.smallBtn{margin-top:10px;width:100%;padding:10px;border-radius:14px;font-size:14px}
+.note{color:#8b8198;font-size:13px;line-height:1.8;text-align:center;margin-top:18px}
+.hint{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px 14px;color:#6f647e;line-height:1.7;font-weight:700;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="badge">ひまつぶし開発室</div>
+    <h1>ファンネームメーカー</h1>
+    <p class="lead">活動名を入れるだけで、配信者・VTuber向けの自然なファンネーム候補を生成します。</p>
+  </section>
+
+  <section class="card">
+    <div class="grid">
+      <div>
+        <label for="creatorName">活動名・キャラ名</label>
+        <input id="creatorName" placeholder="例：星宮みるく、白瀬ゆあ、夜凪レイ" />
+      </div>
+      <div>
+        <label for="mood">方向性</label>
+        <select id="mood">
+          <option value="balanced">バランスよく</option>
+          <option value="cute">かわいい</option>
+          <option value="simple">定番・呼びやすい</option>
+          <option value="idol">アイドル系</option>
+          <option value="cool">クール</option>
+          <option value="funny">ネタ系</option>
+        </select>
+      </div>
+    </div>
+    <div class="hint">例：白瀬ゆあ → ゆあふぁみ / ゆあ民 / ゆあ隊　のように、活動名から自然な呼び名を作ります。</div>
+    <div class="actions">
+      <button class="primary" onclick="generate()">ファンネーム生成</button>
+      <button class="sub" onclick="copyAll()">候補をコピー</button>
+      <button class="sub" onclick="copyPost()">X投稿文コピー</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="resultTop">
+      <span class="tag">生成結果</span>
+      <div id="title" class="mainName">名前を入力して生成！</div>
+      <span id="moodTag" class="tag">バランスよく</span>
+    </div>
+    <div id="results" class="results"></div>
+  </section>
+
+  <p class="note">※候補は創作用です。実際に使用する前に、同名のファンコミュニティや商標などがないか確認してください。</p>
+</div>
+
+<script>
+const endings = {
+  cute:[
+    ["ふぁみ","家族感があり、かわいく使いやすい定番系です。"],
+    ["ふれんず","やさしく親しみやすいファンネームです。"],
+    ["めいと","少し今っぽく、仲間感のある名前です。"],
+    ["ちゃんず","かわいい雰囲気に寄せた名前です。"],
+    ["っこ","短くて呼びやすい、ゆるいファンネームです。"],
+    ["みん","軽くてかわいい、コメント欄でも使いやすい名前です。"]
+  ],
+  simple:[
+    ["民","一番分かりやすく、幅広い活動に使いやすい定番です。"],
+    ["隊","応援している感じが出やすい定番ファンネームです。"],
+    ["組","仲間感があり、覚えやすい名前です。"],
+    ["部","ゆるいコミュニティ感を出しやすい名前です。"],
+    ["勢","SNSで使いやすい、少しラフなファンネームです。"],
+    ["クラブ","分かりやすく、ファンコミュニティ感が出ます。"]
+  ],
+  idol:[
+    ["親衛隊","アイドル感が強く、応援団らしい名前です。"],
+    ["応援団","明るく前向きな印象のファンネームです。"],
+    ["ふぁんくらぶ","王道で、活動者らしさが出やすい名前です。"],
+    ["ペンライト隊","ライブ感やアイドル感を出したい時に向いています。"],
+    ["コール隊","配信やライブを盛り上げる雰囲気があります。"],
+    ["推し隊","分かりやすく、SNSでも使いやすい名前です。"]
+  ],
+  cool:[
+    ["クルー","クールで現代的なファンネームです。"],
+    ["ギルド","ゲーム・ファンタジー系の活動と相性が良い名前です。"],
+    ["レギオン","強めでかっこいい印象のファンネームです。"],
+    ["ナイツ","守ってくれるファン感を出しやすい名前です。"],
+    ["同盟","仲間感とクールさを両立した名前です。"],
+    ["支部","少し独特で、組織っぽい雰囲気があります。"]
+  ],
+  funny:[
+    ["限界民","推し活感が強く、ネタとして使いやすい名前です。"],
+    ["保護者会","かわいい系・見守り系の活動者と相性が良い名前です。"],
+    ["沼民","ハマっている感じが分かりやすいネタ系です。"],
+    ["待機勢","配信を待っているファン感が出る名前です。"],
+    ["見守り隊","やさしく応援してくれる印象の名前です。"],
+    ["寝不足部","深夜配信や雑談系と相性が良いネタ系です。"]
+  ]
+};
+
+const nameWordEndings = [
+  ["家","少し特別感のある、古参感も出せる候補です。"],
+  ["の民","分かりやすく、誰でも意味が伝わる候補です。"],
+  ["の集い","やわらかく、コミュニティ感のある候補です。"],
+  ["のおとも","かわいく親しみやすい候補です。"],
+  ["見守り隊","応援・見守り感が出やすい候補です。"]
+];
+
+let currentList = [];
+let currentName = "";
+
+function cleanName(name){
+  return name.replace(/\s/g,"").replace(/[・_＿\-ー]/g,"").trim();
+}
+
+function splitJapaneseName(name){
+  const raw = cleanName(name);
+  if(!raw) return {raw:"ひまつぶし", main:"ひま", short:"ひま"};
+  // 名字+名前っぽい場合、後半を活動名として優先
+  const chars = [...raw];
+  let main = raw;
+  if(chars.length >= 5) main = chars.slice(Math.floor(chars.length/2)).join("");
+  if(chars.length === 4) main = chars.slice(2).join("");
+  if(chars.length === 3) main = chars.slice(1).join("");
+  if(chars.length <= 2) main = raw;
+  // 2〜3文字の呼びやすい略称
+  let short = main;
+  if([...main].length > 3) short = [...main].slice(0,3).join("");
+  return {raw, main, short};
+}
+
+function normalizeFanName(text){
+  return text
+    .replace(/ーー+/g,"ー")
+    .replace(/民民/g,"民")
+    .replace(/隊隊/g,"隊")
+    .replace(/組組/g,"組");
+}
+
+function addCandidate(set, name, type, desc){
+  name = normalizeFanName(name);
+  if(name.length < 2) return;
+  if(name.length > 12) return;
+  set.set(name, {name,type,desc});
+}
+
+function makeCandidates(parts, mode){
+  const set = new Map();
+  const pools = mode === "balanced"
+    ? ["cute","simple","idol","cool","funny"]
+    : [mode, "simple"];
+
+  // 活動名の後半・略称を中心に自然な候補を作る
+  for(const poolName of pools){
+    const pool = endings[poolName] || endings.simple;
+    for(const [end, desc] of pool){
+      addCandidate(set, parts.short + end, labelOf(poolName), desc);
+      if(parts.main !== parts.short) addCandidate(set, parts.main + end, labelOf(poolName), desc);
+    }
+  }
+
+  // フル活動名を使った意味が分かる候補
+  for(const [end, desc] of nameWordEndings){
+    addCandidate(set, parts.raw + end, "活動名そのまま系", desc);
+  }
+
+  // かわいい短縮系
+  addCandidate(set, parts.short + "ふぁみ", "かわいい", "家族感があり、VTuberのファンネームとして使いやすい候補です。");
+  addCandidate(set, parts.short + "民", "定番", "短くて分かりやすい、最も無難な候補です。");
+  addCandidate(set, parts.short + "隊", "定番", "応援している感じが出しやすい候補です。");
+  addCandidate(set, parts.short + "っこ", "かわいい", "ゆるくてかわいい印象の候補です。");
+  addCandidate(set, parts.short + "クラブ", "定番", "コミュニティ感が分かりやすい候補です。");
+
+  return [...set.values()].slice(0,12);
+}
+
+function labelOf(key){
+  return {
+    cute:"かわいい",
+    simple:"定番",
+    idol:"アイドル系",
+    cool:"クール",
+    funny:"ネタ系"
+  }[key] || "定番";
+}
+
+function generate(){
+  const input = document.getElementById("creatorName").value || "星宮みるく";
+  const mood = document.getElementById("mood").value;
+  const moodLabel = document.getElementById("mood").selectedOptions[0].textContent;
+  currentName = input.trim() || "星宮みるく";
+  const parts = splitJapaneseName(currentName);
+  currentList = makeCandidates(parts, mood);
+  document.getElementById("title").textContent = currentName + " のファンネーム候補";
+  document.getElementById("moodTag").textContent = moodLabel;
+  render();
+}
+
+function render(){
+  const box = document.getElementById("results");
+  box.innerHTML = "";
+  currentList.forEach((item)=>{
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `<div class="fan">${item.name}</div><div class="type">${item.type}</div><div class="desc">${item.desc}</div><button class="sub smallBtn" onclick="copyOne('${item.name.replace(/'/g,"\\'")}')">この候補をコピー</button>`;
+    box.appendChild(div);
+  });
+}
+
+function copyText(text){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>alert("コピーしました！")).catch(fallback);
+  }else fallback();
+  function fallback(){
+    const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("コピーしました！");
+  }
+}
+function copyOne(name){copyText(name)}
+function copyAll(){
+  if(!currentList.length) generate();
+  copyText(`${currentName} のファンネーム候補\n\n` + currentList.map((x,i)=>`${i+1}. ${x.name}（${x.type}）`).join("\n"));
+}
+function copyPost(){
+  if(!currentList.length) generate();
+  const top = currentList.slice(0,5).map((x,i)=>`${i+1}. ${x.name}`).join("\n");
+  copyText(`ファンネームメーカーで作ってみた！\n\n${currentName} のファンネーム候補\n${top}\n\n#VTuber準備中 #VTuber #ファンネーム #ひまつぶし開発室`);
+}
+generate();
+</script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VTuber名前メーカー v5</title>
+<style>
+:root{
+  --bg1:#fff7fb;
+  --bg2:#f2ecff;
+  --main:#7a4cff;
+  --main2:#ff7abb;
+  --text:#34294a;
+  --muted:#746985;
+  --card:#ffffffcc;
+  --line:#eadff8;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 20% 10%, #ffe2f1 0 18%, transparent 28%),
+    radial-gradient(circle at 90% 15%, #e9ddff 0 18%, transparent 30%),
+    linear-gradient(135deg,var(--bg1),var(--bg2));
+  min-height:100vh;
+}
+.wrap{
+  max-width:980px;
+  margin:0 auto;
+  padding:24px 16px 60px;
+}
+.hero{
+  text-align:center;
+  padding:26px 18px 20px;
+}
+.badge{
+  display:inline-block;
+  padding:7px 14px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid var(--line);
+  color:var(--main);
+  font-weight:700;
+  box-shadow:0 8px 24px #6b4cff18;
+}
+h1{
+  margin:14px 0 8px;
+  font-size:clamp(30px,7vw,54px);
+  line-height:1.05;
+  color:#5230d6;
+  text-shadow:0 3px 0 #ffffff;
+}
+.lead{
+  margin:0 auto;
+  max-width:720px;
+  color:var(--muted);
+  line-height:1.8;
+  font-weight:600;
+}
+.card{
+  background:var(--card);
+  backdrop-filter: blur(10px);
+  border:1px solid #ffffff;
+  border-radius:28px;
+  box-shadow:0 18px 50px #7a4cff1b;
+  padding:18px;
+  margin:18px 0;
+}
+.controls{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+@media(max-width:680px){
+  .controls{grid-template-columns:1fr}
+}
+label{
+  display:block;
+  font-weight:800;
+  color:#49346f;
+  margin-bottom:7px;
+}
+select{
+  width:100%;
+  padding:14px 13px;
+  border-radius:16px;
+  border:2px solid var(--line);
+  background:#fff;
+  color:var(--text);
+  font-size:16px;
+  font-weight:700;
+  outline:none;
+}
+select:focus{border-color:#bca5ff}
+.actions{
+  display:grid;
+  grid-template-columns:1.3fr 1fr 1fr;
+  gap:12px;
+  margin-top:16px;
+}
+@media(max-width:680px){
+  .actions{grid-template-columns:1fr}
+}
+button{
+  border:0;
+  border-radius:18px;
+  padding:15px 14px;
+  font-size:16px;
+  font-weight:900;
+  cursor:pointer;
+  transition:.15s transform,.15s opacity;
+}
+button:active{transform:scale(.98)}
+.primary{
+  background:linear-gradient(135deg,var(--main),var(--main2));
+  color:#fff;
+  box-shadow:0 12px 26px #7a4cff36;
+}
+.sub{
+  background:#fff;
+  color:#5839c9;
+  border:2px solid var(--line);
+}
+.result{
+  text-align:center;
+  padding:24px 14px;
+}
+.name{
+  font-size:clamp(36px,9vw,68px);
+  font-weight:950;
+  letter-spacing:.04em;
+  color:#2f2360;
+  margin:8px 0 6px;
+  line-height:1.15;
+}
+.kana{
+  color:#7d6d91;
+  font-weight:800;
+  font-size:18px;
+}
+.meta{
+  margin-top:14px;
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.tag{
+  background:#fff;
+  border:1px solid var(--line);
+  color:#654ccf;
+  padding:7px 11px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:13px;
+}
+.desc{
+  margin:16px auto 0;
+  max-width:700px;
+  line-height:1.8;
+  color:#625875;
+  font-weight:650;
+}
+.list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+@media(max-width:680px){.list{grid-template-columns:1fr}}
+.mini{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:12px 14px;
+  font-weight:800;
+}
+.footer{
+  text-align:center;
+  color:#8b8198;
+  font-size:13px;
+  margin-top:24px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="badge">ひまつぶし開発室</div>
+    <h1>VTuber名前メーカー</h1>
+    <p class="lead">雰囲気とジャンルを選んで、VTuber・配信者・創作キャラに使いやすい名前をランダム生成します。</p>
+  </section>
+
+  <section class="card">
+    <div class="controls">
+      <div>
+        <label for="mood">雰囲気</label>
+        <select id="mood">
+          <option value="random">ランダム</option>
+          <option value="cute">かわいい</option>
+          <option value="cool">クール</option>
+          <option value="clear">清楚</option>
+          <option value="genki">元気</option>
+          <option value="dark">ダーク</option>
+          <option value="dream">ゆめかわ</option>
+        </select>
+      </div>
+      <div>
+        <label for="style">ジャンル</label>
+        <select id="style">
+          <option value="vtuber">VTuber向け</option>
+          <option value="idol">アイドル向け</option>
+          <option value="japanese">和風</option>
+          <option value="fantasy">ファンタジー風</option>
+          <option value="random">全部ランダム</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="generateName()">名前を生成する</button>
+      <button class="sub" onclick="copyName()">名前をコピー</button>
+      <button class="sub" onclick="copyPost()">X投稿文コピー</button>
+    </div>
+  </section>
+
+  <section class="card result">
+    <div class="tag">生成結果</div>
+    <div id="name" class="name">星宮 みるく</div>
+    <div id="kana" class="kana">ほしみや みるく</div>
+    <div class="meta">
+      <span id="styleTag" class="tag">VTuber向け</span>
+      <span id="moodTag" class="tag">かわいい</span>
+      <span class="tag">重複しにくい生成</span>
+    </div>
+    <p id="desc" class="desc">やわらかく覚えやすい、配信者・創作キャラ向けの名前です。</p>
+  </section>
+
+  <section class="card">
+    <label>最近出た名前</label>
+    <div id="history" class="list"></div>
+  </section>
+
+  <p class="footer">※生成結果は創作用の候補です。実際に使用する前に同名活動者・商標などを確認してください。</p>
+</div>
+
+<script>
+const data = {
+  vtuber:{
+    label:"VTuber向け",
+    surnames:[
+      ["星宮","ほしみや"],["白瀬","しらせ"],["夜凪","よなぎ"],["月城","つきしろ"],["天羽","あまはね"],["夢咲","ゆめさき"],["音無","おとなし"],["朝比奈","あさひな"],["水瀬","みなせ"],["花守","はなもり"],
+      ["空乃","そらの"],["猫宮","ねこみや"],["雨音","あまね"],["風見","かざみ"],["桜庭","さくらば"],["星詠","ほしよみ"],["泡沫","うたかた"],["小鳥遊","たかなし"],["七瀬","ななせ"],["神楽坂","かぐらざか"],
+      ["蒼井","あおい"],["白雪","しらゆき"],["夜桜","よざくら"],["海月","みづき"],["夢乃","ゆめの"],["春風","はるかぜ"],["宵月","よいづき"],["彩羽","いろは"],["甘乃","あまの"],["星乃","ほしの"],
+      ["桃瀬","ももせ"],["凪咲","なぎさ"],["月乃","つきの"],["花音","かのん"],["雪村","ゆきむら"],["青葉","あおば"],["雲母","きらら"],["鈴森","すずもり"],["姫野","ひめの"],["紅羽","くれは"],
+      ["雨宮","あまみや"],["黒瀬","くろせ"],["羽澄","はすみ"],["音羽","おとわ"],["水無月","みなづき"],["星川","ほしかわ"],["夢川","ゆめかわ"],["白羽","しらはね"],["夜白","よしろ"],["天音","あまね"]
+    ],
+    given:[
+      ["みるく","みるく"],["ゆあ","ゆあ"],["れい","れい"],["める","める"],["るな","るな"],["ひな","ひな"],["りり","りり"],["のあ","のあ"],["こはね","こはね"],["ましろ","ましろ"],
+      ["あめ","あめ"],["すい","すい"],["みお","みお"],["ここあ","ここあ"],["しえる","しえる"],["りおん","りおん"],["ゆめ","ゆめ"],["ねむ","ねむ"],["らむ","らむ"],["みゆ","みゆ"],
+      ["える","える"],["なゆ","なゆ"],["いろは","いろは"],["かなめ","かなめ"],["つむぎ","つむぎ"],["まふゆ","まふゆ"],["せな","せな"],["みこと","みこと"],["あおい","あおい"],["すず","すず"],
+      ["りん","りん"],["ゆら","ゆら"],["めい","めい"],["ふわり","ふわり"],["こより","こより"],["あかり","あかり"],["しずく","しずく"],["ほのか","ほのか"],["りつ","りつ"],["なる","なる"],
+      ["みなも","みなも"],["くるみ","くるみ"],["なぎ","なぎ"],["りあ","りあ"],["ゆき","ゆき"],["かのん","かのん"],["まりん","まりん"],["あむ","あむ"],["ぴの","ぴの"],["そら","そら"]
+    ]
+  },
+  idol:{
+    label:"アイドル向け",
+    surnames:[
+      ["桃園","ももぞの"],["姫咲","ひめさき"],["花園","はなぞの"],["桜坂","さくらざか"],["愛沢","あいざわ"],["星野","ほしの"],["天咲","あまさき"],["夢見","ゆめみ"],["白鳥","しらとり"],["七海","ななみ"],
+      ["花咲","はなさき"],["苺谷","いちごや"],["春宮","はるみや"],["月島","つきしま"],["羽咲","うさき"],["小花衣","こはない"],["鈴原","すずはら"],["甘宮","あまみや"],["虹野","にじの"],["恋川","こいかわ"],
+      ["美月","みづき"],["花里","はなさと"],["星空","ほしぞら"],["夢羽","ゆめは"],["音咲","おとさき"],["白桃","しらもも"],["姫宮","ひめみや"],["陽乃","ひの"],["夏川","なつかわ"],["月森","つきもり"],
+      ["春野","はるの"],["青空","あおぞら"],["花澄","かすみ"],["星乃宮","ほしのみや"],["甘咲","あまさき"],["光咲","みさき"],["雪乃","ゆきの"],["恋宮","こいみや"],["朝倉","あさくら"],["橘花","たちばな"]
+    ],
+    given:[
+      ["きらり","きらり"],["あいら","あいら"],["もも","もも"],["ここね","ここね"],["みる","みる"],["ゆい","ゆい"],["りぼん","りぼん"],["まりあ","まりあ"],["みらい","みらい"],["はな","はな"],
+      ["こはる","こはる"],["みおり","みおり"],["るり","るり"],["ひまり","ひまり"],["あんず","あんず"],["らら","らら"],["りせ","りせ"],["めろ","めろ"],["のの","のの"],["えま","えま"],
+      ["かれん","かれん"],["しゅか","しゅか"],["いちか","いちか"],["りな","りな"],["ここな","ここな"],["みゅう","みゅう"],["ありす","ありす"],["さくら","さくら"],["ちゆ","ちゆ"],["ゆな","ゆな"],
+      ["まい","まい"],["りこ","りこ"],["ひより","ひより"],["なな","なな"],["あやめ","あやめ"],["みな","みな"],["るか","るか"],["ほたる","ほたる"],["すみれ","すみれ"],["まろん","まろん"]
+    ]
+  },
+  japanese:{
+    label:"和風",
+    surnames:[
+      ["神楽","かぐら"],["月詠","つくよみ"],["篠宮","しのみや"],["花篝","はなかがり"],["宵宮","よいみや"],["白妙","しろたえ"],["雪代","ゆきしろ"],["桜小路","さくらこうじ"],["八雲","やくも"],["天城","あまぎ"],
+      ["千歳","ちとせ"],["藤宮","ふじみや"],["花菱","はなびし"],["久遠","くおん"],["一ノ瀬","いちのせ"],["御影","みかげ"],["東雲","しののめ"],["朧月","おぼろづき"],["紫苑","しおん"],["鈴鹿","すずか"],
+      ["紅葉","もみじ"],["月影","つきかげ"],["水鏡","みかがみ"],["白露","しらつゆ"],["花霞","はながすみ"],["氷室","ひむろ"],["風祭","かざまつり"],["雪見","ゆきみ"],["朝霧","あさぎり"],["鳴神","なるかみ"],
+      ["花筏","はないかだ"],["衣笠","きぬがさ"],["有栖川","ありすがわ"],["藤咲","ふじさき"],["桜守","さくらもり"],["天満","てんま"],["鴇羽","ときは"],["水琴","みこと"],["千草","ちぐさ"],["夕凪","ゆうなぎ"]
+    ],
+    given:[
+      ["こまち","こまち"],["しぐれ","しぐれ"],["かぐや","かぐや"],["つばき","つばき"],["ゆづき","ゆづき"],["みやび","みやび"],["いおり","いおり"],["ほむら","ほむら"],["あやめ","あやめ"],["なぎさ","なぎさ"],
+      ["すずね","すずね"],["ことは","ことは"],["ちとせ","ちとせ"],["さよ","さよ"],["ひより","ひより"],["かえで","かえで"],["つづり","つづり"],["まつり","まつり"],["みこと","みこと"],["しの","しの"],
+      ["ゆきの","ゆきの"],["りんか","りんか"],["あかね","あかね"],["さくら","さくら"],["ほたる","ほたる"],["つむぎ","つむぎ"],["ひなぎく","ひなぎく"],["なでしこ","なでしこ"],["すみれ","すみれ"],["かなで","かなで"],
+      ["こより","こより"],["あさひ","あさひ"],["ゆうひ","ゆうひ"],["みずは","みずは"],["いずな","いずな"],["かざね","かざね"],["ちはや","ちはや"],["うた","うた"],["しらべ","しらべ"],["あまね","あまね"]
+    ]
+  },
+  fantasy:{
+    label:"ファンタジー風",
+    surnames:[
+      ["ルミナ","るみな"],["ノクス","のくす"],["アルカ","あるか"],["セレス","せれす"],["ミラージュ","みらーじゅ"],["エルフィン","えるふぃん"],["ラピス","らぴす"],["シルフィ","しるふぃ"],["リュミエール","りゅみえーる"],["アストラ","あすとら"],
+      ["ルナリア","るなりあ"],["クロノ","くろの"],["ステラ","すてら"],["フィオーレ","ふぃおーれ"],["ヴェール","ゔぇーる"],["ミスティ","みすてぃ"],["オルフェ","おるふぇ"],["リベル","りべる"],["アリア","ありあ"],["ノエル","のえる"],
+      ["セフィラ","せふぃら"],["エトワール","えとわーる"],["ルシェル","るしぇる"],["シャルム","しゃるむ"],["ネージュ","ねーじゅ"],["クラリス","くらりす"],["フローラ","ふろーら"],["レーヴ","れーヴ"],["メルティア","めるてぃあ"],["ヴィオラ","ゔぃおら"],
+      ["ソレイユ","それいゆ"],["リュカ","りゅか"],["ファルナ","ふぁるな"],["アメリア","あめりあ"],["ルシア","るしあ"],["グリモワ","ぐりもわ"],["エクリア","えくりあ"],["ノヴァ","のゔぁ"],["メテオラ","めておら"],["プリズム","ぷりずむ"]
+    ],
+    given:[
+      ["リリア","りりあ"],["ミリア","みりあ"],["ルル","るる"],["エマ","えま"],["ノア","のあ"],["セナ","せな"],["ティア","てぃあ"],["ルナ","るな"],["アイリス","あいりす"],["メル","める"],
+      ["フィル","ふぃる"],["シオン","しおん"],["リゼ","りぜ"],["ユエ","ゆえ"],["ネム","ねむ"],["ラナ","らな"],["エル","える"],["ミュウ","みゅう"],["アリス","ありす"],["レナ","れな"],
+      ["リコ","りこ"],["ノエ","のえ"],["ミナ","みな"],["リュン","りゅん"],["フェリ","ふぇり"],["リーファ","りーふぁ"],["ミント","みんと"],["ロゼ","ろぜ"],["カナリア","かなりあ"],["ステラ","すてら"],
+      ["アリア","ありあ"],["フラン","ふらん"],["クララ","くらら"],["ソフィ","そふぃ"],["ルーチェ","るーちぇ"],["シャル","しゃる"],["ラピ","らぴ"],["エルナ","えるな"],["ミオ","みお"],["レヴィ","れゔぃ"]
+    ]
+  }
+};
+
+const moodWords = {
+  random:{label:"ランダム", desc:"幅広い雰囲気から選ばれた、使いやすい名前です。"},
+  cute:{label:"かわいい", desc:"やわらかく親しみやすい、覚えてもらいやすい名前です。"},
+  cool:{label:"クール", desc:"落ち着きや強さを感じる、スタイリッシュな名前です。"},
+  clear:{label:"清楚", desc:"透明感があり、優しい印象を残せる名前です。"},
+  genki:{label:"元気", desc:"明るくテンポの良い、活動的な印象の名前です。"},
+  dark:{label:"ダーク", desc:"夜・影・神秘性を感じる、少し尖った印象の名前です。"},
+  dream:{label:"ゆめかわ", desc:"ふわっと甘く、幻想的でかわいい印象の名前です。"}
+};
+
+const moodHints = {
+  cute:["桃","姫","花","甘","夢","猫","みる","ここ","りり","もも","めろ","ふわ"],
+  cool:["夜","黒","蒼","凪","瀬","城","れい","せな","りつ","シオン","ノクス"],
+  clear:["白","雪","水","羽","音","澄","ましろ","しずく","かなで","こより"],
+  genki:["夏","陽","星","空","虹","あかり","きらり","ひまり","そら","るか"],
+  dark:["宵","影","黒","朧","紅","月","ノクス","クロノ","ほむら","しぐれ"],
+  dream:["夢","星","月","雲","泡","リリア","ルナ","ゆめ","ねむ","みるく"]
+};
+
+let lastNames = [];
+let current = {full:"星宮 みるく", kana:"ほしみや みるく", style:"VTuber向け", mood:"かわいい"};
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function scorePair(surname, given, mood){
+  if(mood === "random") return 1;
+  const hints = moodHints[mood] || [];
+  const text = surname[0] + given[0] + surname[1] + given[1];
+  let score = 1;
+  hints.forEach(h => { if(text.includes(h)) score += 3; });
+  return score;
+}
+
+function weightedPick(pairs, mood){
+  let best = null;
+  for(let i=0;i<28;i++){
+    const candidate = pick(pairs);
+    const score = scorePair(candidate[0], candidate[1], mood) + Math.random()*2;
+    if(!best || score > best.score) best = {pair:candidate, score};
+  }
+  return best.pair;
+}
+
+function getPool(style){
+  if(style === "random"){
+    const keys = Object.keys(data);
+    return data[pick(keys)];
+  }
+  return data[style] || data.vtuber;
+}
+
+function generateName(){
+  const styleValue = document.getElementById("style").value;
+  const moodValue = document.getElementById("mood").value;
+  let pool = getPool(styleValue);
+  let pairs = [];
+  pool.surnames.forEach(s => pool.given.forEach(g => pairs.push([s,g])));
+
+  // 1000件以上どころか、各ジャンルだけでも1600〜2500件以上の組み合わせ。
+  let chosen, full, kana;
+  for(let tries=0; tries<80; tries++){
+    chosen = weightedPick(pairs, moodValue);
+    full = chosen[0][0] + " " + chosen[1][0];
+    kana = chosen[0][1] + " " + chosen[1][1];
+    const surnameSameAsGiven = chosen[0][0] === chosen[1][0] || chosen[0][1] === chosen[1][1];
+    const recentlyUsed = lastNames.includes(full);
+    if(!surnameSameAsGiven && !recentlyUsed) break;
+  }
+
+  const moodLabel = moodWords[moodValue].label;
+  current = {full, kana, style:pool.label, mood:moodLabel};
+  document.getElementById("name").textContent = full;
+  document.getElementById("kana").textContent = kana;
+  document.getElementById("styleTag").textContent = pool.label;
+  document.getElementById("moodTag").textContent = moodLabel;
+  document.getElementById("desc").textContent = `${pool.label}に使いやすい、${moodWords[moodValue].desc}`;
+
+  lastNames.unshift(full);
+  lastNames = [...new Set(lastNames)].slice(0, 12);
+  renderHistory();
+}
+
+function renderHistory(){
+  const box = document.getElementById("history");
+  box.innerHTML = "";
+  lastNames.forEach(n => {
+    const div = document.createElement("div");
+    div.className = "mini";
+    div.textContent = n;
+    box.appendChild(div);
+  });
+}
+
+async function copyText(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    alert("コピーしました！");
+  }catch(e){
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    alert("コピーしました！");
+  }
+}
+
+function copyName(){
+  copyText(current.full);
+}
+
+function copyPost(){
+  const text = `VTuber名前メーカーで生成しました！\n\n${current.full}\n（${current.kana}）\n\nジャンル：${current.style}\n雰囲気：${current.mood}\n\n#VTuber準備中 #VTuber #名前メーカー #ひまつぶし開発室`;
+  copyText(text);
+}
+
+for(let i=0;i<4;i++) generateName();
+</script>
+</body>
+</html>

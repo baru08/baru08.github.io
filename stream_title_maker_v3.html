@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>配信タイトルメーカー v2</title>
+<style>
+:root{
+  --bg1:#fff7fb;
+  --bg2:#f2ecff;
+  --main:#7a4cff;
+  --main2:#ff7abb;
+  --text:#34294a;
+  --muted:#746985;
+  --card:#ffffffcc;
+  --line:#eadff8;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 20% 10%, #ffe2f1 0 18%, transparent 28%),
+    radial-gradient(circle at 90% 15%, #e9ddff 0 18%, transparent 30%),
+    linear-gradient(135deg,var(--bg1),var(--bg2));
+  min-height:100vh;
+}
+.wrap{max-width:980px;margin:0 auto;padding:24px 16px 60px}
+.hero{text-align:center;padding:26px 18px 20px}
+.badge{
+  display:inline-block;padding:7px 14px;border-radius:999px;background:#fff;
+  border:1px solid var(--line);color:var(--main);font-weight:900;
+  box-shadow:0 8px 24px #6b4cff18;
+}
+h1{
+  margin:14px 0 8px;
+  font-size:clamp(32px,7vw,56px);
+  line-height:1.05;color:#5230d6;text-shadow:0 3px 0 #fff;
+}
+.lead{margin:0 auto;max-width:760px;color:var(--muted);line-height:1.8;font-weight:700}
+.card{
+  background:var(--card);backdrop-filter:blur(10px);border:1px solid #fff;
+  border-radius:28px;box-shadow:0 18px 50px #7a4cff1b;
+  padding:18px;margin:18px 0;
+}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.controls{grid-template-columns:1fr}}
+label{display:block;font-weight:900;color:#49346f;margin-bottom:8px}
+select,input[type="checkbox"]{accent-color:#7a4cff}
+select{
+  width:100%;padding:14px 13px;border-radius:16px;border:2px solid var(--line);
+  background:#fff;color:var(--text);font-size:16px;font-weight:800;outline:none;
+}
+select:focus{border-color:#bca5ff}
+.check{
+  background:#fff;border:2px solid var(--line);border-radius:16px;padding:13px 14px;
+  display:flex;align-items:center;gap:10px;font-weight:900;color:#49346f;height:52px;
+}
+.actions{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px;margin-top:16px}
+@media(max-width:720px){.actions{grid-template-columns:1fr}}
+button{
+  border:0;border-radius:18px;padding:15px 14px;font-size:16px;font-weight:950;
+  cursor:pointer;transition:.15s transform,.15s opacity;
+}
+button:active{transform:scale(.98)}
+.primary{background:linear-gradient(135deg,var(--main),var(--main2));color:#fff;box-shadow:0 12px 26px #7a4cff36}
+.sub{background:#fff;color:#5839c9;border:2px solid var(--line)}
+.resultTop{text-align:center;padding:18px 10px}
+.mainName{font-size:clamp(28px,6vw,46px);font-weight:950;color:#2f2360;margin:8px 0}
+.tag{
+  display:inline-block;background:#fff;border:1px solid var(--line);color:#654ccf;
+  padding:7px 11px;border-radius:999px;font-weight:900;font-size:13px;
+}
+.results{display:grid;grid-template-columns:1fr;gap:12px}
+.item{
+  background:#fff;border:1px solid var(--line);border-radius:20px;padding:15px;
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+}
+@media(max-width:720px){.item{grid-template-columns:1fr}}
+.titleText{font-size:19px;font-weight:950;color:#352463;line-height:1.55}
+.hash{color:#7a6b91;font-weight:750;font-size:13px;line-height:1.6;margin-top:5px}
+.smallBtn{padding:10px 14px;border-radius:14px;font-size:14px;white-space:nowrap}
+.note{text-align:center;color:#8b8198;font-size:13px;line-height:1.8;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="badge">ひまつぶし開発室</div>
+    <h1>配信タイトルメーカー</h1>
+    <p class="lead">配信ジャンルを選ぶだけで、YouTube・Twitch・X告知に使いやすいタイトルを5個まとめて生成します。</p>
+  </section>
+
+  <section class="card">
+    <div class="controls">
+      <div>
+        <label for="genre">配信ジャンル</label>
+        <select id="genre">
+          <option value="zatsudan">雑談</option>
+          <option value="game">ゲーム実況</option>
+          <option value="fps">FPS</option>
+          <option value="horror">ホラー</option>
+          <option value="asmr">ASMR</option>
+          <option value="song">歌枠</option>
+          <option value="draw">お絵描き</option>
+          <option value="join">参加型</option>
+          <option value="endurance">耐久</option>
+          <option value="morning">朝活</option>
+          <option value="night">深夜雑談</option>
+          <option value="anniv">記念配信</option>
+          <option value="collab">コラボ</option>
+          <option value="shorts">Shorts向け</option>
+          <option value="random">全部ランダム</option>
+        </select>
+      </div>
+      <div>
+        <label>オプション</label>
+        <div class="check"><input type="checkbox" id="bait"> 釣りタイトルモード</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="primary" onclick="generate()">タイトルを5個生成</button>
+      <button class="sub" onclick="copyAll()">全部コピー</button>
+      <button class="sub" onclick="copyPost()">X告知文コピー</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="resultTop">
+      <span class="tag">生成結果</span>
+      <div id="heading" class="mainName">配信タイトル候補</div>
+      <span id="modeTag" class="tag">重複なし生成</span>
+    </div>
+    <div id="results" class="results"></div>
+  </section>
+
+  <p class="note">※タイトルはそのまま使っても、ゲーム名・配信者名・時間を足して調整してもOKです。</p>
+</div>
+
+<script>
+const genres = {
+  zatsudan:{label:"雑談", tags:["#VTuber","#雑談","#初見歓迎","#配信"], titles:[
+    "【初見歓迎】まったり雑談しませんか？","作業のお供にゆるっと雑談","今日はのんびりお話する日","最近あったことを話すだけの配信","コメント読みながらまったり話す",
+    "寝る前に少しだけ雑談","初見さんも常連さんも歓迎の雑談枠","何も決めてないけど話したい","お茶でも飲みながらゆる雑談","今日の出来事を聞いてほしい",
+    "みんなの近況を聞かせてください","話題が尽きるまで雑談","ゆるい空気でおしゃべりタイム","コメント頼りの雑談配信","一緒にだらだらしよう",
+    "最近ハマっているものを語る","質問に答えながら雑談","ゆるく相談に乗ったり乗られたり","声だけでも置いていってください","今日はたくさんコメント読みたい"
+  ]},
+  game:{label:"ゲーム実況", tags:["#VTuber","#ゲーム実況","#初見歓迎","#配信"], titles:[
+    "【初見プレイ】完全初見でやってみる！","クリアするまで頑張りたい","初心者だけど本気で挑戦する","今日は絶対に勝ちたいゲーム実況","神ゲーの予感がする",
+    "負けたら即終了チャレンジ","初見さん歓迎のゲーム配信","ストーリーをじっくり楽しむ","操作を覚えるところから始めます","今日は攻略を進めたい",
+    "沼りそうなゲームを始める","笑ったら負けのゲーム実況","まったり遊ぶゲーム配信","ガチ初心者の成長記録","寄り道しながら遊びます",
+    "ラスボス目指して進める","今日は絶対に迷子にならない","コメントに助けられながら進める","神展開を期待して始めます","久しぶりに本気出します"
+  ]},
+  fps:{label:"FPS", tags:["#VTuber","#FPS","#参加型","#配信"], titles:[
+    "エイムを良くしたいFPS配信","ランクを上げたい本気回","今日はキルを取りたい","勝つまで終われないFPS","参加型で楽しく撃ち合う",
+    "冷静に立ち回りたい日","エイム調整から始めます","沼っても笑って許して","味方に感謝するFPS","今日こそキャリーされない",
+    "初心者歓迎の参加型FPS","撃ち合い強化練習","ランクマで成長したい","反射神経を取り戻す","一戦だけのつもりが終われない",
+    "神エイム出したい配信","叫ばず冷静に勝ちたい","勝率を上げる練習回","連勝目指して集中します","今日は強いと言わせたい"
+  ]},
+  horror:{label:"ホラー", tags:["#VTuber","#ホラー","#絶叫注意","#配信"], titles:[
+    "絶対に叫ばないホラー配信","深夜にやるべきじゃなかった","本当に怖いらしいので挑戦","心臓弱い人は注意かも","最後まで見届けてください",
+    "怖くないと信じたいホラー","叫んだら負けです","ひとりでは無理なので見守って","音量注意のホラー実況","怖すぎたら即雑談します",
+    "勇気を出して進めます","夜中にホラーをやる配信者","今日は逃げません","怖いけどクリアしたい","コメントが頼りのホラー配信",
+    "ホラー耐性を鍛える日","ビビったら笑ってください","絶叫しない練習をします","怖すぎる噂のゲームをやる","明るい時間に見ても怖いかも"
+  ]},
+  asmr:{label:"ASMR", tags:["#VTuber","#ASMR","#睡眠導入","#癒し"], titles:[
+    "おやすみ前の睡眠導入ASMR","囁き声でまったり癒します","作業用にも使えるASMR","眠れない人向けの静かな時間","耳にやさしいリラックス配信",
+    "小声でお話するだけ","寝落ち歓迎のASMR枠","疲れた人を癒したい","静かな夜の囁き配信","ゆっくり呼吸を整える時間",
+    "今日も一日おつかれさま","眠くなるまでそばにいます","心を落ち着けるASMR","深夜のリラックスタイム","やさしい声でおやすみなさい",
+    "作業と睡眠のお供にどうぞ","まったり耳元トーク","落ち着く音だけ集めました","癒し重視のASMR配信","小さな声でゆるく話します"
+  ]},
+  song:{label:"歌枠", tags:["#VTuber","#歌枠","#初見歓迎","#配信"], titles:[
+    "まったり好きな曲を歌います","リクエスト歓迎の歌枠","初見さん歓迎のゆる歌枠","今日はたくさん歌いたい","懐かしい曲多めで歌う",
+    "高音チャレンジ歌枠","アニソン多めで歌います","ボカロ多めの歌枠","寝る前に聴ける歌枠","元気が出る曲を歌いたい",
+    "しっとり曲多めの夜歌枠","練習中の曲も歌ってみる","コメント見ながら歌います","歌える曲を増やしたい","今日は声出しから始めます",
+    "作業BGMになる歌枠","初見曲にも挑戦したい","好きな曲を語りながら歌う","一曲だけでも聴いていって","歌で元気を届けたい"
+  ]},
+  draw:{label:"お絵描き", tags:["#VTuber","#お絵描き","#作業配信","#創作"], titles:[
+    "まったりお絵描き作業配信","完成するまで描きたい","落書きしながら雑談","オリキャラを作ってみる","サムネ用イラストを描く",
+    "線画から仕上げまで進めます","今日は色塗りを頑張る","絵の練習をする配信","コメント見ながら描きます","ゆるく創作する時間",
+    "ファンアートを描いてみる","ラフを量産する日","一枚完成を目指します","作業のお供にどうぞ","イラストのアイデア出し配信",
+    "かわいいキャラを描きたい","表情差分を作ってみる","背景練習をします","手癖で描かずに頑張る","創作会議しながら描く"
+  ]},
+  join:{label:"参加型", tags:["#VTuber","#参加型","#初見歓迎","#配信"], titles:[
+    "誰でも参加OKの参加型配信","初見さんも参加歓迎です","みんなで楽しく遊ぼう","参加希望はコメントでどうぞ","初心者歓迎のゆる参加型",
+    "ルールを守って楽しく参加型","今日はたくさん遊びたい","視聴者さんと一緒に遊ぶ回","参加型でわちゃわちゃする","途中参加も歓迎です",
+    "みんなで協力したい配信","勝っても負けても楽しく","初参加さん大歓迎","コメントで順番受付中","まったり参加型やります",
+    "リスナーさんと遊ぶ日","参加枠あけて待ってます","みんなの力を貸してください","ゆるく交流しながら遊ぶ","初見さんが入りやすい参加型"
+  ]},
+  endurance:{label:"耐久", tags:["#VTuber","#耐久","#配信","#チャレンジ"], titles:[
+    "目標達成するまで終われない","勝つまで終われない耐久","クリアするまで頑張る配信","登録者目標まで耐久します","限界まで挑戦してみる",
+    "今日は本気の耐久配信","達成する瞬間を見届けて","朝まで行くかもしれない","集中力が続く限り頑張る","諦めないチャレンジ配信",
+    "一勝するまで終われません","ボス撃破まで耐久","目標スコアまで挑戦","終われない理由がある","長時間のお供にどうぞ",
+    "達成したらみんなで祝いたい","何時間かかるか分からない","根性で乗り切る耐久","今日こそ目標を達成する","伝説になる予定の耐久"
+  ]},
+  morning:{label:"朝活", tags:["#VTuber","#朝活","#おはようVTuber","#配信"], titles:[
+    "おはようの朝活配信","朝の作業のお供にどうぞ","一緒に今日を始めよう","朝からゆるっと雑談","今日も良い一日にしよう",
+    "起きた人から集合です","朝ごはん食べながら雑談","眠いけど朝活します","通勤通学のお供にどうぞ","朝のまったり時間",
+    "今日の予定を話す朝活","朝の声出し配信","一緒に作業しませんか","寝起きだけど頑張る","朝から元気を出したい",
+    "おはようを言うだけの配信","朝の準備をしながらどうぞ","今日の目標を決める回","ゆっくり目を覚ます朝活","初見さんもおはよう歓迎"
+  ]},
+  night:{label:"深夜雑談", tags:["#VTuber","#深夜雑談","#寝落ち歓迎","#配信"], titles:[
+    "眠れない人集合の深夜雑談","夜更かしさん向けのまったり枠","寝落ち歓迎の静かな雑談","深夜なので小さめの声で話す","今日も夜は終わらない",
+    "静かな夜に少しだけお話","眠くなるまで一緒にいよう","深夜テンションで雑談します","作業中の人も寝る人もどうぞ","夜にしか話せないことを話す",
+    "ゆるい空気の深夜枠","コメント少なめでも大丈夫","夜更かしのお供にどうぞ","明日が来る前に少しだけ","眠れない理由を聞かせて",
+    "深夜のひとりごと配信","寝る準備しながら聞いてね","静かにコメント読む回","夜のまったり相談室","深夜に集まる場所"
+  ]},
+  anniv:{label:"記念配信", tags:["#VTuber","#記念配信","#ありがとう","#配信"], titles:[
+    "記念配信！みんなありがとう","達成記念のお祝い配信","感謝を込めて記念配信します","今日は特別な日です","みんなと一緒にお祝いしたい",
+    "ここまで来られて本当にありがとう","記念なのでたくさん話します","振り返りとこれからの話","ありがとうを伝える配信","お祝いコメント待ってます",
+    "記念企画やります","思い出を振り返る日","これからもよろしくね配信","節目の日を一緒に過ごしたい","記念に特別なことをします",
+    "感謝祭はじめます","みんなのおかげの記念回","今日は泣かない予定です","嬉しい報告があります","記念グッズじゃないけど記念配信"
+  ]},
+  collab:{label:"コラボ", tags:["#VTuber","#コラボ","#配信","#初見歓迎"], titles:[
+    "コラボ配信でわちゃわちゃします","初コラボなので緊張しています","最強メンバーで遊びます","今日はひとりじゃありません","コラボ相手と本気で勝ちたい",
+    "仲良くなれるか検証します","笑いすぎ注意のコラボ回","協力できるか不安です","初見さんも歓迎のコラボ枠","神回になる予感のコラボ",
+    "罰ゲームありのコラボ配信","チームワークを見せたい","まったりコラボ雑談","コラボでしか見られない空気","今日は相方に頼ります",
+    "はじめましてコラボ","仲良しコラボで遊ぶ","珍しい組み合わせの配信","コラボ相手を紹介します","一緒に盛り上がりたい"
+  ]},
+  shorts:{label:"Shorts向け", tags:["#Shorts","#VTuber","#切り抜き","#配信者"], titles:[
+    "たった一言で空気が変わった瞬間","これは完全にやらかした","配信中に起きた奇跡","まさかの展開に固まる配信者","一瞬で分かる神回",
+    "この反応はずるい","笑ってはいけない配信事故","リスナーの一言が強すぎた","予想外すぎる結果になった","完全にフラグ回収した",
+    "このあと信じられないことが起きます","配信者、理解が追いつかない","叫ぶしかなかった瞬間","コメント欄がざわついた理由","これは切り抜かれる",
+    "本気で焦った配信者","一番おいしいところだけ見て","数秒で分かる面白さ","この空気感が好き","見返したくなる配信シーン"
+  ]}
+};
+
+const baitPrefixes = [
+  "【絶対見て】","【まさかの神回】","【ガチでやばい】","【閲覧注意】","【伝説回】",
+  "【緊急】","【事故寸前】","【衝撃展開】","【これはひどい】","【完全に終わった】",
+  "【奇跡が起きた】","【初見さん歓迎】","【本気です】","【今日だけ】","【助けて】"
+];
+
+const baitOpeners = [
+  "とんでもないことになった",
+  "配信者人生で一番焦った",
+  "今日は本当に終われない",
+  "これ、普通に神回では？",
+  "コメント欄がざわついた",
+  "予想外すぎて固まった",
+  "ここから伝説が始まる",
+  "さすがにこれは見てほしい",
+  "完全にフラグ回収しました",
+  "もう後戻りできません"
+];
+
+function makeBaitTitle(base){
+  const pattern = Math.floor(Math.random()*4);
+  if(pattern === 0) return pick(baitPrefixes) + " " + base;
+  if(pattern === 1) return pick(baitPrefixes) + " " + pick(baitOpeners) + "｜" + base;
+  if(pattern === 2) return pick(baitOpeners) + "ので見届けてください｜" + base;
+  return pick(baitPrefixes) + " " + base + "【最後まで見て】";
+}
+
+let currentTitles = [];
+let currentTags = "";
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function getPool(key){
+  if(key !== "random") return {label:genres[key].label, tags:genres[key].tags, titles:genres[key].titles};
+  const allTitles = [];
+  const tagSet = new Set(["#VTuber","#配信"]);
+  Object.values(genres).forEach(g=>{
+    allTitles.push(...g.titles.map(t=>({title:t,label:g.label})));
+    g.tags.forEach(tag=>tagSet.add(tag));
+  });
+  return {label:"全部ランダム", tags:[...tagSet].slice(0,5), titles:allTitles};
+}
+
+function generate(){
+  const genreKey = document.getElementById("genre").value;
+  const bait = document.getElementById("bait").checked;
+  const pool = getPool(genreKey);
+  const unique = new Set();
+  const results = [];
+
+  if(genreKey === "random"){
+    const shuffled = shuffle(pool.titles);
+    for(const item of shuffled){
+      let title = item.title;
+      if(bait) title = makeBaitTitle(title);
+      if(!unique.has(title)){
+        unique.add(title);
+        results.push({title, label:item.label});
+      }
+      if(results.length >= 5) break;
+    }
+  }else{
+    const shuffled = shuffle(pool.titles);
+    for(const base of shuffled){
+      let title = base;
+      if(bait) title = makeBaitTitle(title);
+      if(!unique.has(title)){
+        unique.add(title);
+        results.push({title, label:pool.label});
+      }
+      if(results.length >= 5) break;
+    }
+  }
+
+  currentTitles = results.map(x=>x.title);
+  currentTags = pool.tags.join(" ");
+  document.getElementById("heading").textContent = pool.label + " のタイトル候補";
+  render(results, currentTags);
+}
+
+function render(results, tags){
+  const box = document.getElementById("results");
+  box.innerHTML = "";
+  results.forEach((item, i)=>{
+    const div = document.createElement("div");
+    div.className = "item";
+    const safeTitle = item.title.replace(/'/g,"\\'").replace(/"/g,"&quot;");
+    div.innerHTML = `
+      <div>
+        <div class="titleText">${i+1}. ${item.title}</div>
+        <div class="hash">${tags}</div>
+      </div>
+      <button class="sub smallBtn" onclick="copyText('${safeTitle}\\n${tags}')">コピー</button>
+    `;
+    box.appendChild(div);
+  });
+}
+
+function copyText(text){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>alert("コピーしました！")).catch(()=>fallback(text));
+  }else fallback(text);
+}
+function fallback(text){
+  const ta=document.createElement("textarea");
+  ta.value=text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
+  alert("コピーしました！");
+}
+function copyAll(){
+  if(!currentTitles.length) generate();
+  copyText(currentTitles.map((t,i)=>`${i+1}. ${t}`).join("\\n") + "\\n\\n" + currentTags);
+}
+function copyPost(){
+  if(!currentTitles.length) generate();
+  copyText(`配信タイトルメーカーで作ってみた！\\n\\n${currentTitles.slice(0,5).map((t,i)=>`${i+1}. ${t}`).join("\\n")}\\n\\n${currentTags}\\n#ひまつぶし開発室`);
+}
+
+generate();
+</script>
+</body>
+</html>
