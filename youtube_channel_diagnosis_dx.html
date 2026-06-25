@@ -6,21 +6,38 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>YouTubeチャンネル診断DX｜ひまつぶし開発室</title>
-<meta name="description" content="YouTubeチャンネルURLや@ハンドルを入力するだけで、登録者数・総再生数・動画数をもとにチャンネルを診断できる無料ツールです。">
+<meta name="description" content="YouTubeチャンネルURLや@ハンドルを入力するだけで、登録者数・総再生数・動画数・直近動画をもとにチャンネルを診断できる無料ツールです。">
+<meta name="keywords" content="YouTubeチャンネル診断,YouTube分析,YouTube Data API,チャンネル分析,YouTuber,配信者,無料ツール">
 <style>
-:root{--bg1:#fff7fb;--bg2:#f2ecff;--main:#7a4cff;--main2:#ff7abb;--text:#34294a;--muted:#746985;--card:#ffffffdf;--line:#eadff8}
+:root{
+  --bg1:#fff7fb; --bg2:#f2ecff; --main:#7a4cff; --main2:#ff7abb;
+  --text:#34294a; --muted:#746985; --card:#ffffffdf; --line:#eadff8;
+  --good:#16a34a; --warn:#f59e0b; --bad:#ef4444; --blue:#2563eb;
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;color:var(--text);min-height:100vh;background:radial-gradient(circle at 15% 8%,#ffe0f0 0 18%,transparent 30%),radial-gradient(circle at 90% 14%,#e8deff 0 20%,transparent 34%),linear-gradient(135deg,var(--bg1),var(--bg2))}
-.wrap{max-width:1040px;margin:0 auto;padding:24px 16px 70px}.hero{text-align:center;padding:30px 12px 20px}.badge{display:inline-block;background:#fff;border:1px solid var(--line);color:var(--main);padding:8px 15px;border-radius:999px;font-weight:950;box-shadow:0 8px 24px #7654ff18}
-h1{margin:16px 0 8px;font-size:clamp(34px,7vw,62px);line-height:1.05;color:#5230d6;text-shadow:0 3px 0 #fff}.catch{font-size:clamp(18px,4vw,30px);font-weight:950;color:#ff5ea8;margin:8px 0 12px}.lead{margin:0 auto;max-width:820px;color:var(--muted);line-height:1.9;font-weight:750}
+body{
+  margin:0;
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+  color:var(--text); min-height:100vh;
+  background:
+    radial-gradient(circle at 15% 8%, #ffe0f0 0 18%, transparent 30%),
+    radial-gradient(circle at 90% 14%, #e8deff 0 20%, transparent 34%),
+    linear-gradient(135deg,var(--bg1),var(--bg2));
+}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 16px 70px}
+.hero{text-align:center;padding:30px 12px 20px}
+.badge{display:inline-block;background:#fff;border:1px solid var(--line);color:var(--main);padding:8px 15px;border-radius:999px;font-weight:950;box-shadow:0 8px 24px #7654ff18}
+h1{margin:16px 0 8px;font-size:clamp(34px,7vw,62px);line-height:1.05;color:#5230d6;text-shadow:0 3px 0 #fff}.catch{font-size:clamp(18px,4vw,30px);font-weight:950;color:#ff5ea8;margin:8px 0 12px}.lead{margin:0 auto;max-width:850px;color:var(--muted);line-height:1.9;font-weight:750}
 .card{background:var(--card);backdrop-filter:blur(10px);border:1px solid #fff;border-radius:28px;box-shadow:0 18px 50px #7a4cff1a;padding:20px;margin:16px 0}.formRow{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:16px}@media(max-width:720px){.formRow{grid-template-columns:1fr}}
 input{width:100%;border:2px solid var(--line);border-radius:18px;padding:15px 16px;font-size:16px;font-weight:800;color:var(--text);background:#fff;outline:none}input:focus{border-color:#b89cff;box-shadow:0 0 0 4px #7a4cff18}
 button,.btn{border:0;border-radius:18px;padding:15px 18px;font-size:16px;font-weight:950;cursor:pointer;background:linear-gradient(135deg,var(--main),var(--main2));color:#fff;text-decoration:none;box-shadow:0 12px 26px #7a4cff32;display:inline-flex;align-items:center;justify-content:center;gap:8px}button:disabled{opacity:.6;cursor:not-allowed}.secondary{background:#fff;color:#654ccf;border:1px solid var(--line);box-shadow:none}
 .note{color:#7b6e8f;font-weight:750;line-height:1.8;font-size:14px;margin:12px 0 0}.adBox{margin:18px 0;padding:18px;text-align:center;border:1px dashed #d8caee;border-radius:20px;background:#ffffff88;color:#9a8dad;font-weight:800;font-size:13px}.sectionTitle{margin:26px 4px 12px;font-size:24px;color:#49346f}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}@media(max-width:820px){.grid{grid-template-columns:1fr}}.stat{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;text-align:center}.stat .label{color:#7b6e8f;font-weight:900;font-size:13px}.stat .num{font-size:clamp(24px,6vw,36px);font-weight:1000;color:#5230d6;margin-top:6px}
-.resultHeader{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.thumb{width:78px;height:78px;border-radius:22px;object-fit:cover;border:3px solid #fff;box-shadow:0 10px 25px #7a4cff24}.channelName{font-size:25px;font-weight:1000;margin:0;color:#352463}.channelDesc{margin:6px 0 0;color:#7b6e8f;font-weight:750;line-height:1.7}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}@media(max-width:820px){.grid{grid-template-columns:1fr}}.stat{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;text-align:center}.stat .label{color:#7b6e8f;font-weight:900;font-size:13px}.stat .num{font-size:clamp(24px,6vw,34px);font-weight:1000;color:#5230d6;margin-top:6px}
+.resultHeader{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.thumb{width:82px;height:82px;border-radius:24px;object-fit:cover;border:3px solid #fff;box-shadow:0 10px 25px #7a4cff24}.channelName{font-size:25px;font-weight:1000;margin:0;color:#352463}.channelDesc{margin:6px 0 0;color:#7b6e8f;font-weight:750;line-height:1.7}.channelLink{color:#654ccf;text-decoration:none;font-weight:950}
 .rankBox{display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center;background:linear-gradient(135deg,#fff,#fff7fd);border:1px solid var(--line);border-radius:24px;padding:18px;margin-top:14px}@media(max-width:640px){.rankBox{grid-template-columns:1fr;text-align:center}}.rank{width:118px;height:118px;border-radius:36px;display:grid;place-items:center;margin:auto;font-size:54px;font-weight:1000;color:#fff;background:linear-gradient(135deg,#7a4cff,#ff7abb);box-shadow:0 15px 35px #7a4cff33}.type{font-size:24px;font-weight:1000;color:#5230d6;margin:0}.comment{color:#665a78;font-weight:800;line-height:1.8;margin:8px 0 0}
-.list{display:grid;gap:10px;margin-top:12px}.item{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px 14px;color:#665a78;font-weight:800;line-height:1.65}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.error{background:#fff1f2;border:1px solid #fecdd3;color:#be123c;border-radius:18px;padding:14px;font-weight:850;line-height:1.7;margin-top:14px}.hidden{display:none}.footer{text-align:center;color:#8b8198;font-size:13px;line-height:1.8;margin-top:28px}.links a{color:#654ccf;font-weight:950;text-decoration:none}
+.meter{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px}.meterTop{display:flex;justify-content:space-between;gap:10px;font-weight:950;color:#49346f}.bar{height:12px;border-radius:999px;background:#f0e7ff;overflow:hidden;margin-top:10px}.bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(135deg,var(--main),var(--main2));width:0;transition:width .5s ease}.list{display:grid;gap:10px;margin-top:12px}.item{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px 14px;color:#665a78;font-weight:800;line-height:1.65}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.error{background:#fff1f2;border:1px solid #fecdd3;color:#be123c;border-radius:18px;padding:14px;font-weight:850;line-height:1.7;margin-top:14px}.hidden{display:none}.footer{text-align:center;color:#8b8198;font-size:13px;line-height:1.8;margin-top:28px}.links a{color:#654ccf;font-weight:950;text-decoration:none}
+.videoList{display:grid;gap:10px}.video{display:grid;grid-template-columns:100px 1fr;gap:12px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:10px;align-items:center}.video img{width:100px;height:56px;object-fit:cover;border-radius:12px}.videoTitle{font-weight:950;color:#49346f;line-height:1.45}.videoMeta{font-size:13px;color:#7b6e8f;font-weight:800;margin-top:5px}@media(max-width:520px){.video{grid-template-columns:1fr}.video img{width:100%;height:auto}}
+.smallLabel{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;color:#654ccf;font-weight:950;padding:6px 10px;margin:4px 4px 0 0;font-size:13px}
 </style>
 </head>
 <body>
@@ -29,7 +46,7 @@ button,.btn{border:0;border-radius:18px;padding:15px 18px;font-size:16px;font-we
     <div class="badge">YouTube分析ツール</div>
     <h1>YouTubeチャンネル診断DX</h1>
     <div class="catch">URLを入れるだけでチャンネル診断！</div>
-    <p class="lead">チャンネルURL・@ハンドル・チャンネルIDを入力すると、登録者数・総再生数・動画本数をもとに、成長タイプや改善ポイントを診断します。</p>
+    <p class="lead">チャンネルURL・@ハンドル・チャンネルIDを入力すると、登録者数・総再生数・動画本数・直近動画をもとに、成長タイプや改善ポイントを診断します。</p>
   </section>
 
   <div class="adBox">広告スペース</div>
@@ -50,6 +67,7 @@ button,.btn{border:0;border-radius:18px;padding:15px 18px;font-size:16px;font-we
       <div>
         <h2 id="channelTitle" class="channelName"></h2>
         <p id="channelDescription" class="channelDesc"></p>
+        <p class="note"><a id="channelUrl" class="channelLink" target="_blank" rel="noopener">YouTubeで開く</a></p>
       </div>
     </div>
 
@@ -60,13 +78,26 @@ button,.btn{border:0;border-radius:18px;padding:15px 18px;font-size:16px;font-we
       <div class="stat"><div class="label">動画本数</div><div id="videos" class="num">-</div></div>
     </div>
 
+    <h2 class="sectionTitle">直近動画データ</h2>
+    <div class="grid">
+      <div class="stat"><div class="label">直近平均再生数</div><div id="recentAvg" class="num">-</div></div>
+      <div class="stat"><div class="label">直近最高再生数</div><div id="recentMax" class="num">-</div></div>
+      <div class="stat"><div class="label">推定エンゲージ率</div><div id="engRate" class="num">-</div></div>
+    </div>
+
     <div class="rankBox">
       <div id="rank" class="rank">A</div>
-      <div><h3 id="type" class="type"></h3><p id="mainComment" class="comment"></p></div>
+      <div><h3 id="type" class="type"></h3><p id="mainComment" class="comment"></p><div id="labels"></div></div>
     </div>
+
+    <h2 class="sectionTitle">評価メーター</h2>
+    <div id="meters" class="list"></div>
 
     <h2 class="sectionTitle">診断コメント</h2>
     <div id="adviceList" class="list"></div>
+
+    <h2 class="sectionTitle">直近動画</h2>
+    <div id="videoList" class="videoList"></div>
 
     <div class="actions">
       <button id="shareBtn">Xでシェア</button>
@@ -87,7 +118,7 @@ button,.btn{border:0;border-radius:18px;padding:15px 18px;font-size:16px;font-we
 
 <script>
 // ここに新しく再発行した「HTTPリファラー制限済み」のAPIキーを貼ってください。
-const YOUTUBE_API_KEY = "AIzaSyA0aDH5eCb3vDMozdi-TOFdiDC8nPd4sLU";
+const YOUTUBE_API_KEY = "PASTE_YOUR_RESTRICTED_API_KEY_HERE";
 
 const $ = (id) => document.getElementById(id);
 const input = $("channelInput"), analyzeBtn = $("analyzeBtn"), errorBox = $("errorBox"), result = $("result");
@@ -102,6 +133,8 @@ function formatNumber(n){
   if(num >= 10000) return (num / 10000).toFixed(1).replace(".0","") + "万";
   return num.toLocaleString("ja-JP");
 }
+function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+function percent(n){return (Math.round(n*10)/10).toFixed(1).replace('.0','') + '%';}
 function extractChannelInput(raw){
   let value = raw.trim(); if(!value) return { type:"empty", value:"" };
   if(value.includes("youtube.com/")){
@@ -138,65 +171,129 @@ async function getChannelId(parsed){
   throw new Error("チャンネルが見つかりませんでした。URLや@ハンドルを確認してください。");
 }
 async function getChannelData(channelId){
-  const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${encodeURIComponent(channelId)}&key=${YOUTUBE_API_KEY}`;
+  const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics,contentDetails&id=${encodeURIComponent(channelId)}&key=${YOUTUBE_API_KEY}`;
   const data = await fetchJson(url);
   if(!data.items || !data.items[0]) throw new Error("チャンネル情報を取得できませんでした。");
   return data.items[0];
 }
-function diagnose(stats){
-  const subs = Number(stats.subscriberCount || 0), views = Number(stats.viewCount || 0), videos = Number(stats.videoCount || 0);
-  const avg = videos > 0 ? views / videos : 0, viewsPerSub = subs > 0 ? views / subs : 0;
-  let score = 0;
-  score += subs >= 100000 ? 35 : subs >= 10000 ? 28 : subs >= 1000 ? 20 : subs >= 100 ? 12 : 6;
-  score += avg >= 100000 ? 30 : avg >= 10000 ? 24 : avg >= 1000 ? 17 : avg >= 100 ? 10 : 5;
-  score += videos >= 500 ? 20 : videos >= 100 ? 17 : videos >= 30 ? 13 : videos >= 10 ? 9 : 4;
-  score += viewsPerSub >= 100 ? 15 : viewsPerSub >= 30 ? 12 : viewsPerSub >= 10 ? 8 : 4;
-  let rank = score >= 85 ? "S" : score >= 70 ? "A" : score >= 52 ? "B" : score >= 35 ? "C" : "D";
-  const types = {
-    S:["完成度の高い人気チャンネルタイプ","登録者数・再生数・動画本数のバランスが良く、すでに強い土台があります。次はシリーズ化や関連動画への導線強化が効果的です。"],
-    A:["伸びる土台がある成長チャンネルタイプ","十分に伸びる可能性があります。人気動画の傾向を分析し、強いテーマを増やすとさらに伸ばしやすいです。"],
-    B:["改善次第で伸びる準備中タイプ","まだ伸びしろがあります。タイトル・サムネ・投稿ジャンルを少し絞ると、視聴者に伝わりやすくなります。"],
-    C:["これから育てる発展途上タイプ","まずは投稿本数と分かりやすいテーマ作りが大切です。小さくても続けやすい企画を増やしましょう。"],
-    D:["スタート直後の育成タイプ","まだデータが少ない状態です。10〜30本を目標に投稿し、反応が良い動画を見つけていきましょう。"]
-  };
-  const advice = [];
-  advice.push(videos < 10 ? "動画本数が少なめです。まずは10本以上投稿して、チャンネルの方向性を見つけるのがおすすめです。" : videos >= 100 ? "動画本数がしっかりあります。次は伸びた動画の共通点を見つけて、人気シリーズ化を狙いましょう。" : "動画本数は育成途中です。投稿ジャンルを絞りながら、定番企画を増やすと伸ばしやすくなります。");
-  advice.push(avg >= 10000 ? "平均再生数が高めです。タイトルやサムネの方向性が合っている可能性があります。関連動画への導線を強化しましょう。" : "平均再生数を伸ばすには、タイトルの分かりやすさ、サムネの見やすさ、冒頭10秒の引きが重要です。");
-  advice.push(subs === 0 ? "登録者数が非公開、または取得できませんでした。公開データだけで診断しています。" : viewsPerSub >= 30 ? "登録者数に対して再生数が多く、外部流入や検索流入が取れている可能性があります。" : "登録者に対する再生数を伸ばすため、固定視聴者向けのシリーズ企画や投稿時間の統一がおすすめです。");
-  advice.push("診断結果は目安です。実際にはサムネイル、動画内容、投稿頻度、ジャンル需要によって伸び方が変わります。");
-  return { rank, type:types[rank][0], main:types[rank][1], advice };
+async function getRecentVideos(channel){
+  const uploads = channel.contentDetails?.relatedPlaylists?.uploads;
+  if(!uploads) return [];
+  const listUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=10&playlistId=${encodeURIComponent(uploads)}&key=${YOUTUBE_API_KEY}`;
+  const listData = await fetchJson(listUrl);
+  const ids = (listData.items || []).map(x => x.snippet?.resourceId?.videoId).filter(Boolean);
+  if(!ids.length) return [];
+  const videoUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${ids.join(',')}&key=${YOUTUBE_API_KEY}`;
+  const videoData = await fetchJson(videoUrl);
+  return videoData.items || [];
 }
-function render(channel){
-  const snippet = channel.snippet, stats = channel.statistics, d = diagnose(stats);
-  $("thumb").src = snippet.thumbnails?.high?.url || snippet.thumbnails?.default?.url || "";
-  $("channelTitle").textContent = snippet.title || "チャンネル名不明";
-  $("channelDescription").textContent = (snippet.description || "説明文はありません。").slice(0, 120);
-  $("subscribers").textContent = stats.hiddenSubscriberCount ? "非公開" : formatNumber(stats.subscriberCount);
-  $("views").textContent = formatNumber(stats.viewCount);
-  $("videos").textContent = formatNumber(stats.videoCount);
-  $("rank").textContent = d.rank; $("type").textContent = d.type; $("mainComment").textContent = d.main;
-  $("adviceList").innerHTML = "";
-  d.advice.forEach(text => { const div = document.createElement("div"); div.className = "item"; div.textContent = text; $("adviceList").appendChild(div); });
-  lastShareText = `YouTubeチャンネル診断DXで診断しました！\n\n${snippet.title}\nランク：${d.rank}\nタイプ：${d.type}\n\n#YouTubeチャンネル診断DX\n#ひまつぶし開発室`;
-  result.classList.remove("hidden");
-  result.scrollIntoView({behavior:"smooth", block:"start"});
+function analyzeRecent(videos){
+  const views = videos.map(v => Number(v.statistics?.viewCount || 0));
+  const likes = videos.map(v => Number(v.statistics?.likeCount || 0));
+  const comments = videos.map(v => Number(v.statistics?.commentCount || 0));
+  const totalViews = views.reduce((a,b)=>a+b,0);
+  const totalLikes = likes.reduce((a,b)=>a+b,0);
+  const totalComments = comments.reduce((a,b)=>a+b,0);
+  const avg = views.length ? totalViews / views.length : 0;
+  const max = views.length ? Math.max(...views) : 0;
+  const eng = totalViews > 0 ? ((totalLikes + totalComments) / totalViews) * 100 : 0;
+  return {avg,max,eng,totalViews,totalLikes,totalComments};
+}
+function diagnose(stats, recent){
+  const subs = Number(stats.subscriberCount || 0), views = Number(stats.viewCount || 0), videos = Number(stats.videoCount || 0);
+  const avgAll = videos > 0 ? views / videos : 0, viewsPerSub = subs > 0 ? views / subs : 0;
+  const recentAvg = recent.avg || 0;
+  let base = subs >= 100000 ? 95 : subs >= 50000 ? 86 : subs >= 10000 ? 76 : subs >= 1000 ? 62 : subs >= 100 ? 45 : 25;
+  let content = avgAll >= 100000 ? 95 : avgAll >= 30000 ? 84 : avgAll >= 10000 ? 75 : avgAll >= 1000 ? 58 : avgAll >= 100 ? 42 : 25;
+  let activity = videos >= 500 ? 92 : videos >= 100 ? 80 : videos >= 30 ? 66 : videos >= 10 ? 52 : 30;
+  let recentPower = recentAvg >= 100000 ? 95 : recentAvg >= 30000 ? 84 : recentAvg >= 10000 ? 75 : recentAvg >= 1000 ? 58 : recentAvg >= 100 ? 42 : 25;
+  let fanPower = viewsPerSub >= 100 ? 90 : viewsPerSub >= 30 ? 78 : viewsPerSub >= 10 ? 64 : viewsPerSub >= 3 ? 50 : 34;
+  let engage = recent.eng >= 8 ? 92 : recent.eng >= 5 ? 82 : recent.eng >= 3 ? 68 : recent.eng >= 1.5 ? 55 : 38;
+  const score = Math.round(base*.22 + content*.2 + activity*.17 + recentPower*.2 + fanPower*.11 + engage*.1);
+  const rank = score >= 88 ? "S" : score >= 74 ? "A" : score >= 58 ? "B" : score >= 42 ? "C" : "D";
+  let type = "";
+  if(recentAvg > avgAll * 1.7 && recentAvg > 500) type = "急成長クリエイター型";
+  else if(videos >= 100 && avgAll >= 1000) type = "積み上げ型クリエイター";
+  else if(viewsPerSub >= 30 && views > 10000) type = "検索・外部流入に強いタイプ";
+  else if(recent.eng >= 5 && recent.totalViews > 0) type = "コアファン反応型";
+  else if(subs >= 10000) type = "安定運営チャンネル型";
+  else if(videos < 10) type = "スタート直後の育成型";
+  else type = "改善次第で伸びる準備中タイプ";
+
+  const main = rank === "S" ? "総合力が非常に高く、チャンネルの土台がかなり強いです。人気動画の共通点をシリーズ化するとさらに伸びやすくなります。" :
+               rank === "A" ? "伸びる土台があります。直近で反応が良い動画を分析して、強いテーマを増やすのがおすすめです。" :
+               rank === "B" ? "伸びしろが大きい状態です。タイトル・サムネ・投稿ジャンルを少し絞ると視聴者に伝わりやすくなります。" :
+               rank === "C" ? "これから育てていく段階です。まずは継続しやすい企画と投稿本数を増やして、反応が良い方向性を探しましょう。" :
+                              "まだデータが少ない状態です。10〜30本を目標に投稿し、まずはチャンネルの型を作るのがおすすめです。";
+  const advice = [];
+  advice.push(videos < 10 ? "動画本数が少なめです。まずは10本以上投稿して、チャンネルの方向性を見つけましょう。" : videos >= 100 ? "投稿本数は十分あります。次は伸びた動画の共通点を見つけ、シリーズ化を狙いましょう。" : "投稿本数は育成途中です。ジャンルを広げすぎず、定番企画を増やすと伸ばしやすくなります。");
+  advice.push(recentAvg > avgAll * 1.5 && recentAvg > 500 ? "直近動画の平均再生数が全体平均より高めです。最近の方向性が合っている可能性があります。" : "直近動画の伸びを上げるには、タイトルの分かりやすさ、サムネの見やすさ、冒頭10秒の引きが重要です。");
+  advice.push(recent.eng >= 5 ? "いいね・コメントの反応が強めです。視聴者参加型の企画や固定コメントで交流を増やすとさらに強くなります。" : "視聴者の反応を増やすため、動画内でコメントしたくなる問いかけを入れるのがおすすめです。");
+  advice.push(viewsPerSub >= 30 ? "登録者数に対して再生数が多く、検索流入や外部流入を取れている可能性があります。" : "登録者に対する再生効率を伸ばすには、リピーター向けのシリーズ企画や投稿時間の統一が有効です。");
+  advice.push("診断結果は目安です。実際にはジャンル需要、サムネ、動画内容、投稿頻度によって伸び方が変わります。");
+  return {rank,type,main,score,meters:{base,content,activity,recentPower,fanPower,engage},advice};
+}
+function addMeter(name, value){
+  const div = document.createElement('div'); div.className='meter';
+  div.innerHTML = `<div class="meterTop"><span>${name}</span><span>${Math.round(value)}点</span></div><div class="bar"><span style="width:${clamp(value,0,100)}%"></span></div>`;
+  $('meters').appendChild(div);
+}
+function render(channel, videos){
+  const snippet = channel.snippet, stats = channel.statistics, recent = analyzeRecent(videos), d = diagnose(stats,recent);
+  $('thumb').src = snippet.thumbnails?.high?.url || snippet.thumbnails?.default?.url || '';
+  $('channelTitle').textContent = snippet.title || 'チャンネル名不明';
+  $('channelDescription').textContent = (snippet.description || '説明文はありません。').slice(0, 130);
+  $('channelUrl').href = `https://www.youtube.com/channel/${channel.id}`;
+  $('subscribers').textContent = stats.hiddenSubscriberCount ? '非公開' : formatNumber(stats.subscriberCount);
+  $('views').textContent = formatNumber(stats.viewCount);
+  $('videos').textContent = formatNumber(stats.videoCount);
+  $('recentAvg').textContent = videos.length ? formatNumber(Math.round(recent.avg)) : '取得なし';
+  $('recentMax').textContent = videos.length ? formatNumber(recent.max) : '取得なし';
+  $('engRate').textContent = videos.length ? percent(recent.eng) : '取得なし';
+  $('rank').textContent = d.rank; $('type').textContent = d.type; $('mainComment').textContent = d.main;
+  $('labels').innerHTML = `<span class="smallLabel">総合${d.score}点</span><span class="smallLabel">${d.type}</span>`;
+  $('meters').innerHTML = '';
+  addMeter('チャンネル規模', d.meters.base); addMeter('再生力', d.meters.content); addMeter('投稿実績', d.meters.activity); addMeter('直近の勢い', d.meters.recentPower); addMeter('登録者効率', d.meters.fanPower); addMeter('反応率', d.meters.engage);
+  $('adviceList').innerHTML = '';
+  d.advice.forEach(text => { const div=document.createElement('div'); div.className='item'; div.textContent=text; $('adviceList').appendChild(div); });
+  $('videoList').innerHTML = '';
+  if(videos.length){
+    videos.slice(0,5).forEach(v=>{
+      const el=document.createElement('div'); el.className='video';
+      const img=v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url || '';
+      const title=v.snippet.title || 'タイトル不明';
+      const vc=formatNumber(v.statistics?.viewCount || 0);
+      const lc=formatNumber(v.statistics?.likeCount || 0);
+      el.innerHTML=`<img src="${img}" alt=""><div><div class="videoTitle">${title}</div><div class="videoMeta">再生 ${vc} ／ 高評価 ${lc}</div></div>`;
+      $('videoList').appendChild(el);
+    });
+  }else{
+    const div=document.createElement('div'); div.className='item'; div.textContent='直近動画を取得できませんでした。'; $('videoList').appendChild(div);
+  }
+  lastShareText = `YouTubeチャンネル診断DXで診断しました！\n\n${snippet.title}\nランク：${d.rank}\nタイプ：${d.type}\n総合：${d.score}点\n\n#YouTubeチャンネル診断DX\n#ひまつぶし開発室`;
+  result.classList.remove('hidden'); result.scrollIntoView({behavior:'smooth', block:'start'});
 }
 async function analyze(){
-  clearError(); result.classList.add("hidden");
-  if(YOUTUBE_API_KEY === "PASTE_YOUR_RESTRICTED_API_KEY_HERE"){ showError("サイト管理者向け：HTML内の YOUTUBE_API_KEY にAPIキーを設定してください。"); return; }
+  clearError(); result.classList.add('hidden');
+  if(YOUTUBE_API_KEY === 'PASTE_YOUR_RESTRICTED_API_KEY_HERE'){ showError('サイト管理者向け：HTML内の YOUTUBE_API_KEY にAPIキーを設定してください。'); return; }
   const parsed = extractChannelInput(input.value);
-  if(parsed.type === "empty"){ showError("チャンネルURL・@ハンドル・チャンネルIDのいずれかを入力してください。"); return; }
-  analyzeBtn.disabled = true; analyzeBtn.textContent = "診断中...";
-  try{ const channelId = await getChannelId(parsed); const channel = await getChannelData(channelId); render(channel); }
-  catch(err){ showError("取得に失敗しました。入力内容・APIキー制限・YouTube Data API v3の有効化を確認してください。エラー：" + err.message); }
-  finally{ analyzeBtn.disabled = false; analyzeBtn.textContent = "診断する"; }
+  if(parsed.type === 'empty'){ showError('チャンネルURL・@ハンドル・チャンネルIDのいずれかを入力してください。'); return; }
+  analyzeBtn.disabled = true; analyzeBtn.textContent = '診断中...';
+  try{
+    const channelId = await getChannelId(parsed);
+    const channel = await getChannelData(channelId);
+    let videos = [];
+    try{ videos = await getRecentVideos(channel); }catch(e){ videos = []; }
+    render(channel, videos);
+  }catch(err){ showError('取得に失敗しました。入力内容・APIキー制限・YouTube Data API v3の有効化を確認してください。エラー：' + err.message); }
+  finally{ analyzeBtn.disabled = false; analyzeBtn.textContent = '診断する'; }
 }
-analyzeBtn.addEventListener("click", analyze);
-input.addEventListener("keydown", (e) => { if(e.key === "Enter") analyze(); });
-$("shareBtn").addEventListener("click", () => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(lastShareText + "\n" + location.href)}`, "_blank", "noopener,noreferrer"); });
-$("copyBtn").addEventListener("click", async () => {
-  try{ await navigator.clipboard.writeText(lastShareText); $("copyBtn").textContent = "コピーしました"; setTimeout(()=>$("copyBtn").textContent="結果をコピー",1500); }
-  catch(e){ alert("コピーに失敗しました。"); }
+analyzeBtn.addEventListener('click', analyze);
+input.addEventListener('keydown', (e) => { if(e.key === 'Enter') analyze(); });
+$('shareBtn').addEventListener('click', () => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(lastShareText + '\n' + location.href)}`, '_blank', 'noopener,noreferrer'); });
+$('copyBtn').addEventListener('click', async () => {
+  try{ await navigator.clipboard.writeText(lastShareText); $('copyBtn').textContent = 'コピーしました'; setTimeout(()=>$('copyBtn').textContent='結果をコピー',1500); }
+  catch(e){ alert('コピーに失敗しました。'); }
 });
 </script>
 </body>
