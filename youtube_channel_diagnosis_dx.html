@@ -6,8 +6,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>YouTubeチャンネル診断DX｜ひまつぶし開発室</title>
-<meta name="description" content="YouTubeチャンネルURLや@ハンドルを入力するだけで、登録者数・総再生数・動画数・平均再生数・人気動画・最新動画から無料診断できる分析ツールです。">
-<meta name="keywords" content="YouTubeチャンネル診断,YouTube分析,YouTube Data API,チャンネル分析,YouTuber,配信者,無料ツール,平均再生数,人気動画">
+<meta name="description" content="YouTubeチャンネルURLや@ハンドルを入力するだけで、登録者数・総再生数・動画数・平均再生数・最新50本内の人気動画・最新動画から無料診断できる分析ツールです。">
+<meta name="keywords" content="YouTubeチャンネル診断,YouTube分析,YouTube Data API,チャンネル分析,YouTuber,配信者,無料ツール,平均再生数,人気動画,最新50本">
 <style>
 :root{
   --bg1:#fff7fb; --bg2:#f2ecff; --main:#7a4cff; --main2:#ff7abb;
@@ -25,7 +25,7 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans
     <div class="badge">YouTube分析ツール</div>
     <h1>YouTubeチャンネル診断DX</h1>
     <div class="catch">URLを入れるだけでチャンネル診断！</div>
-    <p class="lead">チャンネルURL・@ハンドル・チャンネルIDを入力すると、登録者数・総再生数・動画本数・平均再生数・人気動画・最新動画をもとに、成長タイプや改善ポイントを診断します。</p>
+    <p class="lead">チャンネルURL・@ハンドル・チャンネルIDを入力すると、登録者数・総再生数・動画本数・平均再生数・最新50本内の人気動画・最新動画をもとに、成長タイプや改善ポイントを診断します。</p>
   </section>
 
   <div class="adBox">広告スペース</div>
@@ -63,10 +63,10 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans
       <div class="stat"><div class="label">全体平均再生数</div><div id="avgAll" class="num">-</div></div>
     </div>
 
-    <h2 class="sectionTitle">直近・人気データ</h2>
+    <h2 class="sectionTitle">直近50本・人気データ</h2>
     <div class="grid">
-      <div class="stat"><div class="label">直近平均再生数</div><div id="recentAvg" class="num">-</div></div>
-      <div class="stat"><div class="label">直近最高再生数</div><div id="recentMax" class="num">-</div></div>
+      <div class="stat"><div class="label">最新50本平均再生数</div><div id="recentAvg" class="num">-</div></div>
+      <div class="stat"><div class="label">最新50本最高再生数</div><div id="recentMax" class="num">-</div></div>
       <div class="stat"><div class="label">推定エンゲージ率</div><div id="engRate" class="num">-</div></div>
       <div class="stat"><div class="label">推定更新頻度</div><div id="postPace" class="num">-</div></div>
     </div>
@@ -76,7 +76,8 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans
 
     <div class="resultTools">
       <section>
-        <h2 class="sectionTitle">人気動画TOP3</h2>
+        <h2 class="sectionTitle">最新50本内の人気動画TOP3</h2>
+        <p class="note" style="margin-top:-4px">※API消費を抑えるため、チャンネル全期間ではなく最新50本の中から再生数順で表示します。</p>
         <div id="popularList" class="videoList" style="grid-template-columns:1fr"></div>
       </section>
       <section>
@@ -111,7 +112,7 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans
   <section class="card links faq">
     <h2 class="sectionTitle" style="margin-top:0">YouTubeチャンネル診断DXとは？</h2>
     <details open><summary>URLだけで診断できますか？</summary><p>はい。チャンネルURL、@ハンドル、チャンネルIDを入力すると、YouTube Data API v3の公開データをもとに診断します。</p></details>
-    <details><summary>登録者数だけで評価しますか？</summary><p>登録者数だけでなく、総再生数、動画本数、全体平均再生数、直近動画の再生数、いいね・コメントの反応も目安として使います。</p></details>
+    <details><summary>登録者数だけで評価しますか？</summary><p>登録者数だけでなく、総再生数、動画本数、全体平均再生数、最新50本の再生数、いいね・コメントの反応も目安として使います。</p></details>
     <details><summary>データは保存されますか？</summary><p>このページでは入力されたチャンネル情報を保存しません。診断はブラウザ上で実行されます。</p></details>
     <details><summary>診断結果は正確ですか？</summary><p>公開データをもとにした目安です。実際の伸び方はジャンル、動画内容、サムネイル、投稿頻度、視聴維持率などで変わります。</p></details>
   </section>
@@ -173,8 +174,10 @@ async function getChannelId(parsed){
 }
 async function getChannelData(channelId){ const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics,contentDetails&id=${encodeURIComponent(channelId)}&key=${YOUTUBE_API_KEY}`; const data = await fetchJson(url); if(!data.items || !data.items[0]) throw new Error("チャンネル情報を取得できませんでした。"); return data.items[0]; }
 async function getRecentVideos(channel){
+  // 軽量版：API消費を抑えるため、アップロード一覧から最新50本だけ取得します。
+  // 人気動画TOP3も「チャンネル全期間」ではなく、この最新50本の中で再生数順に選びます。
   const uploads = channel.contentDetails?.relatedPlaylists?.uploads; if(!uploads) return [];
-  const listUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=15&playlistId=${encodeURIComponent(uploads)}&key=${YOUTUBE_API_KEY}`;
+  const listUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${encodeURIComponent(uploads)}&key=${YOUTUBE_API_KEY}`;
   const listData = await fetchJson(listUrl);
   const ids = (listData.items || []).map(x => x.snippet?.resourceId?.videoId).filter(Boolean);
   if(!ids.length) return [];
@@ -229,10 +232,10 @@ function diagnose(stats, recent, popular){
   const score = Math.round(base*.2 + content*.18 + activity*.14 + recentPower*.18 + fanPower*.1 + engage*.1 + pace*.1);
   const rank = score >= 92 ? 'SS' : score >= 86 ? 'S' : score >= 74 ? 'A' : score >= 58 ? 'B' : score >= 42 ? 'C' : 'D';
   const type = pickType({subs,views,videos,avgAll,recent,popular});
-  const main = rank === 'SS' ? 'トップクラスの総合力です。人気動画の型をシリーズ化し、関連動画へ回遊させるとさらに強くなります。' : rank === 'S' ? '総合力が非常に高く、チャンネルの土台がかなり強いです。伸びた動画の共通点を増やしましょう。' : rank === 'A' ? '伸びる土台があります。直近で反応が良い動画を分析して、強いテーマを増やすのがおすすめです。' : rank === 'B' ? '伸びしろが大きい状態です。タイトル・サムネ・投稿ジャンルを少し絞ると視聴者に伝わりやすくなります。' : rank === 'C' ? 'これから育てていく段階です。まずは継続しやすい企画と投稿本数を増やしましょう。' : 'まだデータが少ない状態です。10〜30本を目標に投稿し、チャンネルの型を作るのがおすすめです。';
+  const main = rank === 'SS' ? 'トップクラスの総合力です。人気動画の型をシリーズ化し、関連動画へ回遊させるとさらに強くなります。' : rank === 'S' ? '総合力が非常に高く、チャンネルの土台がかなり強いです。伸びた動画の共通点を増やしましょう。' : rank === 'A' ? '伸びる土台があります。最近反応が良い動画を分析して、強いテーマを増やすのがおすすめです。' : rank === 'B' ? '伸びしろが大きい状態です。タイトル・サムネ・投稿ジャンルを少し絞ると視聴者に伝わりやすくなります。' : rank === 'C' ? 'これから育てていく段階です。まずは継続しやすい企画と投稿本数を増やしましょう。' : 'まだデータが少ない状態です。10〜30本を目標に投稿し、チャンネルの型を作るのがおすすめです。';
   const advice = [];
   advice.push(videos < 10 ? '動画本数が少なめです。まずは10本以上投稿して、反応が良いジャンルを探しましょう。' : videos >= 100 ? '投稿本数は十分あります。次は伸びた動画の共通点を見つけ、シリーズ化を狙いましょう。' : '投稿本数は育成途中です。ジャンルを広げすぎず、定番企画を増やすと伸ばしやすくなります。');
-  advice.push(recentAvg > avgAll * 1.5 && recentAvg > 500 ? '直近動画の平均再生数が全体平均より高めです。最近の方向性が合っている可能性があります。' : '直近動画の伸びを上げるには、タイトルの分かりやすさ、サムネの見やすさ、冒頭10秒の引きが重要です。');
+  advice.push(recentAvg > avgAll * 1.5 && recentAvg > 500 ? '最新50本の平均再生数が全体平均より高めです。最近の方向性が合っている可能性があります。' : '最新動画の伸びを上げるには、タイトルの分かりやすさ、サムネの見やすさ、冒頭10秒の引きが重要です。');
   advice.push(recent.eng >= 5 ? 'いいね・コメントの反応が強めです。視聴者参加型の企画や固定コメントで交流を増やすとさらに強くなります。' : '視聴者の反応を増やすため、動画内でコメントしたくなる問いかけを入れるのがおすすめです。');
   advice.push(viewsPerSub >= 30 ? '登録者数に対して再生数が多く、検索流入や外部流入を取れている可能性があります。登録導線を強めると伸びやすいです。' : '登録者に対する再生効率を伸ばすには、リピーター向けのシリーズ企画や投稿時間の統一が有効です。');
   advice.push(recent.paceScore >= 75 ? '投稿頻度は良好です。量を維持しつつ、伸びた企画の第2弾・第3弾を作るのがおすすめです。' : '投稿頻度が低めの場合、無理なく続けられる曜日固定の投稿がおすすめです。');
@@ -255,9 +258,9 @@ function render(channel, videos){
   $('recentAvg').textContent = videos.length ? formatNumber(Math.round(recent.avg)) : '取得なし'; $('recentMax').textContent = videos.length ? formatNumber(recent.max) : '取得なし'; $('engRate').textContent = videos.length ? percent(recent.eng) : '取得なし'; $('postPace').textContent = recent.pace;
   $('rank').textContent = d.rank; $('scoreText').textContent = `${d.score}点`; $('type').textContent = d.type; $('mainComment').textContent = d.main;
   $('labels').innerHTML = `<span class="smallLabel">総合${d.score}点</span><span class="smallLabel">${escapeHtml(d.type)}</span><span class="smallLabel">開設日 ${toDateJP(snippet.publishedAt)}</span>`;
-  $('meters').innerHTML = ''; addMeter('チャンネル規模', d.meters.base); addMeter('再生力', d.meters.content); addMeter('投稿実績', d.meters.activity); addMeter('直近の勢い', d.meters.recentPower); addMeter('登録者効率', d.meters.fanPower); addMeter('反応率', d.meters.engage); addMeter('投稿ペース', d.meters.pace);
+  $('meters').innerHTML = ''; addMeter('チャンネル規模', d.meters.base); addMeter('再生力', d.meters.content); addMeter('投稿実績', d.meters.activity); addMeter('最新50本の勢い', d.meters.recentPower); addMeter('登録者効率', d.meters.fanPower); addMeter('反応率', d.meters.engage); addMeter('投稿ペース', d.meters.pace);
   $('adviceList').innerHTML = ''; d.advice.forEach(text => { const div=document.createElement('div'); div.className='item'; div.textContent=text; $('adviceList').appendChild(div); });
-  renderVideo('popularList', popular, '人気動画を取得できませんでした。'); renderVideo('videoList', videos.slice(0,5), '最新動画を取得できませんでした。');
+  renderVideo('popularList', popular, '最新50本内の人気動画を取得できませんでした。'); renderVideo('videoList', videos.slice(0,5), '最新動画を取得できませんでした。');
   lastShareText = `YouTubeチャンネル診断DXで診断しました！\n\n${snippet.title}\nランク：${d.rank}\nタイプ：${d.type}\n総合：${d.score}点\n平均再生：${formatNumber(Math.round(d.avgAll))}\n\n#YouTubeチャンネル診断DX\n#ひまつぶし開発室`;
   result.classList.remove('hidden'); result.scrollIntoView({behavior:'smooth', block:'start'});
 }
